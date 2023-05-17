@@ -3,10 +3,18 @@
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition
-        constraintSetEnd="@+id/expand"
-        constraintSetStart="@+id/collapse"
+        motion:constraintSetEnd="@+id/expand"
+        motion:constraintSetStart="@+id/collapse"
         motion:duration="300"
         motion:motionInterpolator="linear">
+
+        <OnSwipe
+            motion:touchAnchorId="@id/videoPlayerContainer"
+            motion:touchRegionId="@id/videoPlayerContainer" />
+        <OnClick
+            motion:clickAction="transitionToEnd"
+            motion:targetId="@id/videoPlayerContainer" />
+
         <KeyFrameSet>
 
             <KeyPosition

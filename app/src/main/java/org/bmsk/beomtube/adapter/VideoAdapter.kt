@@ -16,10 +16,12 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 class VideoAdapter(
-    private val context: Context
+    private val context: Context,
+    private val onClick: (VideoItem) -> Unit,
 ) : ListAdapter<VideoItem, VideoAdapter.ViewHolder>(difUtil) {
-    inner class ViewHolder(private val binding: ItemVideoBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(
+        private val binding: ItemVideoBinding,
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private val now = LocalDate.now()
 
@@ -50,11 +52,14 @@ class VideoAdapter(
                 .load(item.channelThumb)
                 .circleCrop()
                 .into(binding.channelLogoImageView)
+
+            binding.root.setOnClickListener {
+                onClick.invoke(item)
+            }
         }
 
         private fun formatViewCount(count: Long): String {
             return when {
-                count >= 1_000_000 -> DecimalFormat("#.#백만회").format(count / 1_000_000.0)
                 count >= 1_000_0 -> DecimalFormat("#.#만회").format(count / 1_000_0.0)
                 count >= 1_000 -> DecimalFormat("#.#천회").format(count / 1_000.0)
                 else -> count.toString()

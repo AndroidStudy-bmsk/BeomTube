@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BeomTube</string>
     <string name="sub_title_video_info">%s ・ 조회수 %s ・ %s</string>
+    <string name="header_sub_title_video_info">조회수 %s ・ %s</string>
     <string name="home">홈</string>
     <string name="storage">보관함</string>
     <string name="hot">Hot</string>

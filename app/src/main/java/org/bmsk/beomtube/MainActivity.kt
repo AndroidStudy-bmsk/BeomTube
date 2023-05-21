@@ -10,6 +10,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
+import org.bmsk.beomtube.adapter.PlayerVideoAdapter
 import org.bmsk.beomtube.adapter.VideoAdapter
 import org.bmsk.beomtube.data.VideoItem
 import org.bmsk.beomtube.data.VideoList
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         readData("videos.json", VideoList::class.java) ?: VideoList(emptyList())
     }
     private lateinit var videoAdapter: VideoAdapter
+    private lateinit var playerVideoAdapter: PlayerVideoAdapter
 
     private var player: ExoPlayer? = null
 
@@ -34,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         setUpMotionLayout()
         setUpVideoRecyclerView()
-
+        setUpPlayerVideoRecyclerView()
         setUpControlButton()
         binding.hideButton.setOnClickListener {
             binding.motionLayout.transitionToState(R.id.hide)
@@ -59,6 +61,9 @@ class MainActivity : AppCompatActivity() {
             binding.motionLayout.setTransition(R.id.collapse, R.id.expand)
             binding.motionLayout.transitionToEnd()
 
+            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
+            playerVideoAdapter.submitList(list)
+
             play(videoItem)
         }
 
@@ -68,6 +73,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         videoAdapter.submitList(videoList.videos)
+    }
+
+    private fun setUpPlayerVideoRecyclerView() {
+        playerVideoAdapter = PlayerVideoAdapter(context = this) { videoItem ->
+            play(videoItem)
+
+            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
+            playerVideoAdapter.submitList(list)
+        }
+        binding.playerRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = playerVideoAdapter
+        }
     }
 
     private fun setUpMotionLayout() {
@@ -151,11 +169,11 @@ class MainActivity : AppCompatActivity() {
                     binding.playerView.player = exoPlayer
                     binding.playerView.useController = false
 
-                    exoPlayer.addListener(object: Player.Listener {
+                    exoPlayer.addListener(object : Player.Listener {
                         override fun onIsPlayingChanged(isPlaying: Boolean) {
                             super.onIsPlayingChanged(isPlaying)
 
-                            if(isPlaying) {
+                            if (isPlaying) {
                                 binding.controlButton.setImageResource(R.drawable.baseline_pause_24)
                             } else {
                                 binding.controlButton.setImageResource(R.drawable.baseline_play_arrow_24)

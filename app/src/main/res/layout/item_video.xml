@@ -14,7 +14,8 @@
         app:layout_constraintDimensionRatio="H, 16:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAccessibility="no" />
 
     <ImageView
         android:id="@+id/channelLogoImageView"
@@ -24,7 +25,8 @@
         android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/videoThumbnailImageView"
-        tools:background="@color/red" />
+        tools:background="@color/red"
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/titleTextView"

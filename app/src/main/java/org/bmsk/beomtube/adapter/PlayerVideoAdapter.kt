@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.bmsk.beomtube.R
-import org.bmsk.beomtube.data.VideoItem
+import org.bmsk.beomtube.data.player.PlayerHeader
+import org.bmsk.beomtube.data.player.PlayerVideo
+import org.bmsk.beomtube.data.player.PlayerVideoModel
 import org.bmsk.beomtube.databinding.ItemVideoBinding
 import org.bmsk.beomtube.databinding.ItemVideoHeaderBinding
 import java.text.DecimalFormat
@@ -18,15 +20,15 @@ import java.time.temporal.ChronoUnit
 
 class PlayerVideoAdapter(
     private val context: Context,
-    private val onClick: (VideoItem) -> Unit,
-) : ListAdapter<VideoItem, RecyclerView.ViewHolder>(diffUtil) {
+    private val onClick: (PlayerVideo) -> Unit,
+) : ListAdapter<PlayerVideoModel, RecyclerView.ViewHolder>(diffUtil) {
 
     private val now = LocalDate.now()
 
     inner class HeaderVideHolder(
         private val binding: ItemVideoHeaderBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: VideoItem) {
+        fun bind(item: PlayerHeader) {
             val date = LocalDate.parse(item.date, DateTimeFormatter.ofPattern("yyyy.MM.dd"))
             val monthsDiff = ChronoUnit.MONTHS.between(date, now)
             val yearsDiff = ChronoUnit.YEARS.between(date, now)
@@ -59,7 +61,7 @@ class PlayerVideoAdapter(
     inner class VideoViewHolder(
         private val binding: ItemVideoBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: VideoItem) {
+        fun bind(item: PlayerVideo) {
             binding.titleTextView.text = item.title
 
             val date = LocalDate.parse(item.date, DateTimeFormatter.ofPattern("yyyy.MM.dd"))
@@ -127,11 +129,11 @@ class PlayerVideoAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             VIEW_TYPE_HEADER -> {
-                (holder as HeaderVideHolder).bind(currentList[position])
+                (holder as HeaderVideHolder).bind(currentList[position] as PlayerHeader)
             }
 
             VIEW_TYPE_VIDEO -> {
-                (holder as VideoViewHolder).bind(currentList[position])
+                (holder as VideoViewHolder).bind(currentList[position] as PlayerVideo)
             }
         }
     }
@@ -144,13 +146,17 @@ class PlayerVideoAdapter(
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_VIDEO = 1
 
-        val diffUtil = object : DiffUtil.ItemCallback<VideoItem>() {
-            override fun areItemsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
+        val diffUtil = object : DiffUtil.ItemCallback<PlayerVideoModel>() {
+            override fun areItemsTheSame(oldItem: PlayerVideoModel, newItem: PlayerVideoModel): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
-                return oldItem == newItem
+            override fun areContentsTheSame(oldItem: PlayerVideoModel, newItem: PlayerVideoModel): Boolean {
+                return if(oldItem is PlayerVideo && newItem is PlayerVideo) {
+                    oldItem == newItem
+                } else if(oldItem is PlayerHeader && newItem is PlayerHeader) {
+                    oldItem == newItem
+                } else false
             }
         }
     }

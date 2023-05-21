@@ -29,7 +29,6 @@
                 app:layout_scrollFlags="scroll|enterAlways">
 
                 <TextView
-                    android:id="@+id/appBarTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawablePadding="8dp"
@@ -60,7 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.exoplayer2.ui.PlayerView
+    <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/playerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -98,7 +97,8 @@
         app:layout_constraintEnd_toStartOf="@id/hideButton"
         app:layout_constraintTop_toTopOf="@id/videoPlayerContainer"
         app:tint="@color/white"
-        tools:alpha="1" />
+        tools:alpha="1"
+        android:importantForAccessibility="no" />
 
     <ImageView
         android:id="@+id/hideButton"
@@ -113,7 +113,8 @@
         app:layout_constraintEnd_toEndOf="@id/videoPlayerContainer"
         app:layout_constraintTop_toTopOf="@id/videoPlayerContainer"
         app:tint="@color/white"
-        tools:alpha="1" />
+        tools:alpha="1"
+        android:importantForAccessibility="no" />
 
     <FrameLayout
         android:id="@+id/recyclerViewContainer"

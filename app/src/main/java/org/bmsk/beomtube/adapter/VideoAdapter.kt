@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.bmsk.beomtube.R
-import org.bmsk.beomtube.data.VideoItem
+import org.bmsk.beomtube.data.VideoEntity
 import org.bmsk.beomtube.databinding.ItemVideoBinding
 import java.text.DecimalFormat
 import java.time.LocalDate
@@ -17,15 +17,15 @@ import java.time.temporal.ChronoUnit
 
 class VideoAdapter(
     private val context: Context,
-    private val onClick: (VideoItem) -> Unit,
-) : ListAdapter<VideoItem, VideoAdapter.ViewHolder>(difUtil) {
+    private val onClick: (VideoEntity) -> Unit,
+) : ListAdapter<VideoEntity, VideoAdapter.ViewHolder>(difUtil) {
     inner class ViewHolder(
         private val binding: ItemVideoBinding,
     ) : RecyclerView.ViewHolder(binding.root) {
 
         private val now = LocalDate.now()
 
-        fun bind(item: VideoItem) {
+        fun bind(item: VideoEntity) {
             binding.titleTextView.text = item.title
 
             val date = LocalDate.parse(item.date, DateTimeFormatter.ofPattern("yyyy.MM.dd"))
@@ -82,12 +82,12 @@ class VideoAdapter(
     }
 
     companion object {
-        val difUtil = object : DiffUtil.ItemCallback<VideoItem>() {
-            override fun areItemsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
+        val difUtil = object : DiffUtil.ItemCallback<VideoEntity>() {
+            override fun areItemsTheSame(oldItem: VideoEntity, newItem: VideoEntity): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
+            override fun areContentsTheSame(oldItem: VideoEntity, newItem: VideoEntity): Boolean {
                 return oldItem == newItem
             }
         }

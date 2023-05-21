@@ -1,22 +1,21 @@
 package org.bmsk.beomtube
 
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewbinding.ViewBinding
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import org.bmsk.beomtube.adapter.PlayerVideoAdapter
 import org.bmsk.beomtube.adapter.VideoAdapter
-import org.bmsk.beomtube.data.VideoItem
 import org.bmsk.beomtube.data.VideoList
+import org.bmsk.beomtube.data.player.PlayerHeader
+import org.bmsk.beomtube.data.player.transform
 import org.bmsk.beomtube.databinding.ActivityMainBinding
 import org.bmsk.beomtube.util.readData
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -38,6 +37,10 @@ class MainActivity : AppCompatActivity() {
         setUpVideoRecyclerView()
         setUpPlayerVideoRecyclerView()
         setUpControlButton()
+        setUpHideButton()
+    }
+
+    private fun setUpHideButton() {
         binding.hideButton.setOnClickListener {
             binding.motionLayout.transitionToState(R.id.hide)
             player?.pause()
@@ -61,10 +64,20 @@ class MainActivity : AppCompatActivity() {
             binding.motionLayout.setTransition(R.id.collapse, R.id.expand)
             binding.motionLayout.transitionToEnd()
 
-            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
+            val headerModel = PlayerHeader(
+                id = "H${videoItem.id}",
+                title = videoItem.title,
+                channelName = videoItem.channelName,
+                viewCount = videoItem.viewCount,
+                channelThumb = videoItem.channelThumb,
+                date = videoItem.date
+            )
+
+            val list = listOf(headerModel) + videoList.videos.filter { it.id != videoItem.id }
+                .map { it.transform() }
             playerVideoAdapter.submitList(list)
 
-            play(videoItem)
+            play(videoItem.sources[0], videoItem.title)
         }
 
         binding.videoListRecyclerView.apply {
@@ -76,11 +89,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpPlayerVideoRecyclerView() {
-        playerVideoAdapter = PlayerVideoAdapter(context = this) { videoItem ->
-            play(videoItem)
+        playerVideoAdapter = PlayerVideoAdapter(context = this) { playerVideo ->
+            if (playerVideo.sources.isNotEmpty()) {
+                play(playerVideo.sources[0], playerVideo.title)
 
-            val list = listOf(videoItem) + videoList.videos.filter { it.id != videoItem.id }
-            playerVideoAdapter.submitList(list)
+                val headerModel = PlayerHeader(
+                    id = "H${playerVideo.id}",
+                    title = playerVideo.title,
+                    channelName = playerVideo.channelName,
+                    viewCount = playerVideo.viewCount,
+                    channelThumb = playerVideo.channelThumb,
+                    date = playerVideo.date
+                )
+
+                val list = listOf(headerModel) + videoList.videos.filter { it.id != playerVideo.id }
+                    .map { it.transform() }
+                playerVideoAdapter.submitList(list) {
+                    // submit callback
+                    binding.playerRecyclerView.smoothScrollToPosition(0)
+                }
+            }
         }
         binding.playerRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -126,14 +154,12 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun play(videoItem: VideoItem) {
-        if (videoItem.sources.isNotEmpty()) {
-            player?.setMediaItem(MediaItem.fromUri(Uri.parse(videoItem.sources[0])))
-            player?.prepare()
-            player?.play()
+    private fun play(videoUrl: String, videoTitle: String) {
+        player?.setMediaItem(MediaItem.fromUri(Uri.parse(videoUrl)))
+        player?.prepare()
+        player?.play()
 
-            binding.videoTitleTextView.text = videoItem.title
-        }
+        binding.videoTitleTextView.text = videoTitle
     }
 
     // 플레이어의 초기화가 오래걸릴 수 있으므로 onStart에서부터 초기화를 진행한다.
